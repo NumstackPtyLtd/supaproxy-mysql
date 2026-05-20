@@ -1,0 +1,47 @@
+{
+  "name": "@supaproxy/mysql",
+  "version": "1.0.0",
+  "description": "MySQL adapter for SupaProxy: repository implementations, migrations, and pool factory",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "@supaproxy/core": ">=1.0.0"
+  },
+  "dependencies": {
+    "mysql2": "^3.22.1",
+    "pino": "^9.6.0"
+  },
+  "devDependencies": {
+    "@supaproxy/core": "file:../supaproxy-core",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NumstackPtyLtd/supaproxy-mysql.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
