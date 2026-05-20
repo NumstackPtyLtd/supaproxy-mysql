@@ -1,20 +1,6 @@
 import type mysql from 'mysql2/promise'
 import type { EntryPointRepository, EntryPointData, EntryPointWithIntegration } from '@supaproxy/core/domain/integration'
-
-interface EntryPointRow extends mysql.RowDataPacket {
-  id: string
-  integration_id: string
-  channel_id: string
-  channel_name: string | null
-  direct: number
-  direct_workspace_id: string | null
-  created_at: string
-}
-
-interface EntryPointWithTypeRow extends EntryPointRow {
-  integration_type: string
-  org_id: string
-}
+import { type EntryPointRow, type EntryPointWithTypeRow, mapEntryPointRow } from './IntegrationRowMappers.js'
 
 export class MysqlEntryPointRepository implements EntryPointRepository {
   constructor(private readonly pool: mysql.Pool) {}
@@ -24,7 +10,7 @@ export class MysqlEntryPointRepository implements EntryPointRepository {
       'SELECT * FROM entry_points WHERE integration_id = ? ORDER BY channel_name, channel_id',
       [integrationId],
     )
-    return rows.map(mapRow)
+    return rows.map(mapEntryPointRow)
   }
 
   async findByChannel(type: string, channelId: string): Promise<EntryPointWithIntegration | null> {
@@ -38,14 +24,14 @@ export class MysqlEntryPointRepository implements EntryPointRepository {
     )
     if (!rows[0]) return null
     const r = rows[0]
-    return { ...mapRow(r), integration_type: r.integration_type, org_id: r.org_id }
+    return { ...mapEntryPointRow(r), integration_type: r.integration_type, org_id: r.org_id }
   }
 
   async findById(id: string): Promise<EntryPointData | null> {
     const [rows] = await this.pool.execute<EntryPointRow[]>(
       'SELECT * FROM entry_points WHERE id = ? LIMIT 1', [id],
     )
-    return rows[0] ? mapRow(rows[0]) : null
+    return rows[0] ? mapEntryPointRow(rows[0]) : null
   }
 
   async create(data: EntryPointData): Promise<void> {
@@ -81,18 +67,6 @@ export class MysqlEntryPointRepository implements EntryPointRepository {
        ORDER BY ci.type, ep.channel_name, ep.channel_id`,
       [orgId],
     )
-    return rows.map(r => ({ ...mapRow(r), integration_type: r.integration_type }))
-  }
-}
-
-function mapRow(r: EntryPointRow): EntryPointData {
-  return {
-    id: r.id,
-    integration_id: r.integration_id,
-    channel_id: r.channel_id,
-    channel_name: r.channel_name,
-    direct: Boolean(r.direct),
-    direct_workspace_id: r.direct_workspace_id,
-    created_at: r.created_at,
+    return rows.map(r => ({ ...mapEntryPointRow(r), integration_type: r.integration_type }))
   }
 }

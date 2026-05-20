@@ -1,4 +1,5 @@
 import type mysql from 'mysql2/promise'
+import type { DatabaseAdapter } from '@supaproxy/core/ports/database'
 
 import { MysqlOrganisationRepository } from './repositories/MysqlOrganisationRepository.js'
 import { MysqlWorkspaceRepository } from './repositories/MysqlWorkspaceRepository.js'
@@ -12,7 +13,7 @@ import { MysqlIntegrationRepository } from './repositories/MysqlIntegrationRepos
 import { MysqlEntryPointRepository } from './repositories/MysqlEntryPointRepository.js'
 import { MysqlKnowledgeChunkRepository } from './repositories/MysqlKnowledgeChunkRepository.js'
 
-export function createMysqlInfra(pool: mysql.Pool) {
+export function createMysqlInfra(pool: mysql.Pool): DatabaseAdapter {
   return {
     orgRepo: new MysqlOrganisationRepository(pool),
     workspaceRepo: new MysqlWorkspaceRepository(pool),

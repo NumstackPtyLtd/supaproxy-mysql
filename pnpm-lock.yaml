@@ -421,7 +421,6 @@ packages:
   /@lancedb/lancedb@0.27.2(apache-arrow@18.1.0):
     resolution: {integrity: sha512-JQpZHV5KzUzDI3flYCjtZcfHlEbL8lM54E0NT+jrRYe29aKYegfavvPsAsuZp0VdcMwFMZcpMkaBhjQMo/fwvg==}
     engines: {node: '>= 18'}
-    cpu: [x64, arm64]
     os: [darwin, linux, win32]
     peerDependencies:
       apache-arrow: '>=15.0.0 <=18.1.0'
@@ -2938,6 +2937,7 @@ packages:
       '@supaproxy/connections': 0.2.1(zod@3.25.76)
       '@supaproxy/consumers': 0.4.1(@slack/bolt@4.7.2)
       '@supaproxy/guardrails': 0.7.5
+      '@supaproxy/mysql': 'link:'
       '@supaproxy/providers': 0.2.3(@anthropic-ai/sdk@0.90.0)(openai@6.38.0)
       apache-arrow: 18.1.0
       bcrypt: 6.0.0

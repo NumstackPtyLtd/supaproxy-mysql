@@ -1,8 +1,6 @@
 import type mysql from 'mysql2/promise'
-import type { RowDataPacket } from 'mysql2'
 import type { PromptTemplateRepository, PromptTemplateData, PromptType, PromptScope } from '@supaproxy/core/domain/prompt'
-
-interface PromptRow extends RowDataPacket, PromptTemplateData {}
+import type { PromptRow } from './PromptTemplateRowMappers.js'
 
 export class MysqlPromptTemplateRepository implements PromptTemplateRepository {
   constructor(private readonly pool: mysql.Pool) {}

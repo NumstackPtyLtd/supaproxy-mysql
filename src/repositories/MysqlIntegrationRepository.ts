@@ -1,14 +1,6 @@
 import type mysql from 'mysql2/promise'
 import type { IntegrationRepository, IntegrationData } from '@supaproxy/core/domain/integration'
-
-interface IntegrationRow extends mysql.RowDataPacket {
-  id: string
-  org_id: string
-  type: string
-  status: string
-  created_at: string
-  updated_at: string
-}
+import { type IntegrationRow, mapIntegrationRow } from './IntegrationRowMappers.js'
 
 export class MysqlIntegrationRepository implements IntegrationRepository {
   constructor(private readonly pool: mysql.Pool) {}
@@ -18,7 +10,7 @@ export class MysqlIntegrationRepository implements IntegrationRepository {
       'SELECT * FROM consumer_integrations WHERE org_id = ? ORDER BY type',
       [orgId],
     )
-    return rows.map(mapRow)
+    return rows.map(mapIntegrationRow)
   }
 
   async findByOrgAndType(orgId: string, type: string): Promise<IntegrationData | null> {
@@ -26,7 +18,7 @@ export class MysqlIntegrationRepository implements IntegrationRepository {
       'SELECT * FROM consumer_integrations WHERE org_id = ? AND type = ? LIMIT 1',
       [orgId, type],
     )
-    return rows[0] ? mapRow(rows[0]) : null
+    return rows[0] ? mapIntegrationRow(rows[0]) : null
   }
 
   async create(data: IntegrationData): Promise<void> {
@@ -43,8 +35,4 @@ export class MysqlIntegrationRepository implements IntegrationRepository {
   async delete(id: string): Promise<void> {
     await this.pool.execute('DELETE FROM consumer_integrations WHERE id = ?', [id])
   }
-}
-
-function mapRow(r: IntegrationRow): IntegrationData {
-  return { id: r.id, org_id: r.org_id, type: r.type, status: r.status as IntegrationData['status'], created_at: r.created_at, updated_at: r.updated_at }
 }

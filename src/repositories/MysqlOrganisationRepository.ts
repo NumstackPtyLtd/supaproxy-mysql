@@ -1,16 +1,6 @@
 import type mysql from 'mysql2/promise'
-import type { RowDataPacket } from 'mysql2'
 import type { OrganisationRepository, OrgData, UserData, OrgSettingData, TeamData } from '@supaproxy/core/domain/organisation'
-
-interface OrgRow extends RowDataPacket { id: string; name: string; slug: string; created_at: string }
-interface UserRow extends RowDataPacket { id: string; org_id: string | null; email: string; name: string; password_hash: string; org_role: 'admin' | 'workspace_admin' | 'user'; created_at: string }
-interface SettingRow extends RowDataPacket { id: string; key_name: string; value: string; is_secret: boolean }
-interface TeamRow extends RowDataPacket { id: string; name: string }
-interface IdRow extends RowDataPacket { id: string }
-interface ValueRow extends RowDataPacket { value: string }
-interface KeyValueRow extends RowDataPacket { key_name: string; value: string }
-interface UserListRow extends RowDataPacket { id: string; name: string; email: string; org_role: string; created_at: string }
-interface CountRow extends RowDataPacket { total: number }
+import type { OrgRow, UserRow, SettingRow, TeamRow, IdRow, ValueRow, KeyValueRow, UserListRow, CountRow } from './OrganisationRowMappers.js'
 
 export class MysqlOrganisationRepository implements OrganisationRepository {
   constructor(private readonly pool: mysql.Pool) {}

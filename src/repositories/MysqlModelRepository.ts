@@ -1,8 +1,6 @@
 import type mysql from 'mysql2/promise'
-import type { RowDataPacket } from 'mysql2'
 import type { ModelRepository, ModelData } from '@supaproxy/core/ports/model'
-
-interface ModelRow extends RowDataPacket { id: string; label: string; is_default: boolean }
+import type { ModelRow } from './ModelRowMappers.js'
 
 export class MysqlModelRepository implements ModelRepository {
   constructor(private readonly pool: mysql.Pool) {}

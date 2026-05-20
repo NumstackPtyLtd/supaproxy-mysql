@@ -1,15 +1,6 @@
 import type { Pool, RowDataPacket } from 'mysql2/promise'
 import type { KnowledgeChunkData, KnowledgeChunkRepository } from '@supaproxy/core/domain/knowledge'
-
-interface ChunkRow extends RowDataPacket {
-  id: string
-  source_id: string
-  workspace_id: string
-  text: string
-  chunk_index: number
-  content_hash: string
-  created_at: string
-}
+import type { ChunkRow } from './KnowledgeChunkRowMappers.js'
 
 export class MysqlKnowledgeChunkRepository implements KnowledgeChunkRepository {
   constructor(private pool: Pool) {}
