@@ -421,6 +421,7 @@ packages:
   /@lancedb/lancedb@0.27.2(apache-arrow@18.1.0):
     resolution: {integrity: sha512-JQpZHV5KzUzDI3flYCjtZcfHlEbL8lM54E0NT+jrRYe29aKYegfavvPsAsuZp0VdcMwFMZcpMkaBhjQMo/fwvg==}
     engines: {node: '>= 18'}
+    cpu: [x64, arm64]
     os: [darwin, linux, win32]
     peerDependencies:
       apache-arrow: '>=15.0.0 <=18.1.0'
@@ -822,6 +823,18 @@ packages:
       pino: 9.14.0
     dev: true
 
+  /@supaproxy/bullmq@1.0.0(@supaproxy/core@1.3.0):
+    resolution: {integrity: sha512-0jYBeED6DEvEsD9NSFigwDEU/iMgx7Ns3IRbzRTfeysPrg5QfQ+1NdwGoZ5zrsVgHX/DgiEnR7tMDwpXO1Eabw==}
+    peerDependencies:
+      '@supaproxy/core': '>=1.0.0'
+    dependencies:
+      '@supaproxy/core': file:../supaproxy-core(@types/express@5.0.6)(@types/node@22.19.19)
+      bullmq: 5.76.10
+      pino: 9.14.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@supaproxy/connections@0.2.1(zod@3.25.76):
     resolution: {integrity: sha512-+DUT/4Lk0NDp6F8aaiouM/D72tT/giFaVz1aWRYw+FU/kGnXbJrgC99ycnoB0N2+mo1YPyxzoBNVs5vcKq5wjQ==}
     dependencies:
@@ -849,6 +862,29 @@ packages:
     resolution: {integrity: sha512-YI/wwqbmFIiUw2lyzMmoFFDLKcCBSmAiyzJdVd3PnkHrg6ksGGuAFDAPBNzzTUBc3nWfYIJWK0O8EyDF+bjXXA==}
     dev: true
 
+  /@supaproxy/lancedb@1.0.0(@supaproxy/core@1.3.0):
+    resolution: {integrity: sha512-ZPg9CfeGqj3IZeEOoOC4SI4J1SQKwaC8I7ccGzhSP97k1axQKOR+hT80LVaSLtmM2+Mf7qDYVlnZtdOL0yfCbw==}
+    peerDependencies:
+      '@supaproxy/core': '>=1.2.0'
+    dependencies:
+      '@lancedb/lancedb': 0.27.2(apache-arrow@18.1.0)
+      '@supaproxy/core': file:../supaproxy-core(@types/express@5.0.6)(@types/node@22.19.19)
+      apache-arrow: 18.1.0
+      pino: 9.14.0
+    dev: true
+
+  /@supaproxy/mysql@1.0.0(@supaproxy/core@1.3.0)(@types/node@22.19.19):
+    resolution: {integrity: sha512-7WXGb9XnP4nsahI52vxIVaztJHN0ptk2yvVhHluwhBNGXKokQbfu4TiPS7DM31fbAbMQBITrPA8ySIMFC2V/fQ==}
+    peerDependencies:
+      '@supaproxy/core': '>=1.0.0'
+    dependencies:
+      '@supaproxy/core': file:../supaproxy-core(@types/express@5.0.6)(@types/node@22.19.19)
+      mysql2: 3.22.3(@types/node@22.19.19)
+      pino: 9.14.0
+    transitivePeerDependencies:
+      - '@types/node'
+    dev: true
+
   /@supaproxy/providers@0.2.3(@anthropic-ai/sdk@0.90.0)(openai@6.38.0):
     resolution: {integrity: sha512-j6j2cHV5wSz5OhuRgmhVGyzm8gKUI6+0hI+W1KC2/IYetfNRfNpSX+KnHnRO4HW7eUkVCBayne9WMIPVJQqQeQ==}
     peerDependencies:
@@ -863,6 +899,18 @@ packages:
       '@anthropic-ai/sdk': 0.90.0(zod@3.25.76)
       openai: 6.38.0(zod@3.25.76)
       pino: 9.14.0
+    dev: true
+
+  /@supaproxy/redis@1.0.0(@supaproxy/core@1.3.0):
+    resolution: {integrity: sha512-BrHShE5XoW4i6ReWYiQQtGrdmnL8wkpycb8vVjWlIPksK9cQf7x4cYNpRUb2lCp5YtXf2P3JVQZ99FmK9OH71Q==}
+    peerDependencies:
+      '@supaproxy/core': '>=1.3.0'
+    dependencies:
+      '@supaproxy/core': file:../supaproxy-core(@types/express@5.0.6)(@types/node@22.19.19)
+      ioredis: 5.10.1
+      pino: 9.14.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@swc/helpers@0.5.21:
@@ -2930,24 +2978,22 @@ packages:
       '@auth/core': 0.37.4
       '@hono/node-server': 1.19.14(hono@4.12.21)
       '@hono/zod-openapi': 0.18.4(hono@4.12.21)(zod@3.25.76)
-      '@lancedb/lancedb': 0.27.2(apache-arrow@18.1.0)
       '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
       '@slack/bolt': 4.7.2(@types/express@5.0.6)
       '@supaproxy/auth': 1.0.0(hono@4.12.21)
+      '@supaproxy/bullmq': 1.0.0(@supaproxy/core@1.3.0)
       '@supaproxy/connections': 0.2.1(zod@3.25.76)
       '@supaproxy/consumers': 0.4.1(@slack/bolt@4.7.2)
       '@supaproxy/guardrails': 0.7.5
-      '@supaproxy/mysql': 'link:'
+      '@supaproxy/lancedb': 1.0.0(@supaproxy/core@1.3.0)
+      '@supaproxy/mysql': 1.0.0(@supaproxy/core@1.3.0)(@types/node@22.19.19)
       '@supaproxy/providers': 0.2.3(@anthropic-ai/sdk@0.90.0)(openai@6.38.0)
-      apache-arrow: 18.1.0
+      '@supaproxy/redis': 1.0.0(@supaproxy/core@1.3.0)
       bcrypt: 6.0.0
-      bullmq: 5.76.10
       dotenv: 17.4.2
       glob: 11.1.0
       hono: 4.12.21
-      ioredis: 5.10.1
       jsonwebtoken: 9.0.3
-      mysql2: 3.22.3(@types/node@22.19.19)
       openai: 6.38.0(zod@3.25.76)
       pino: 9.14.0
       pino-pretty: 13.1.3
