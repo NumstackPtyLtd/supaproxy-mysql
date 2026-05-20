@@ -35,7 +35,7 @@ const container = createContainer(infra, { pool, ...options })
 
 | Directory | Contents |
 |---|---|
-| `src/repositories/` | 11 repository implementations + 3 row mapper files |
+| `src/repositories/` | All repository implementations + row mapper files |
 | `src/migrations.ts` | 30 versioned schema migrations |
 | `src/pool.ts` | Connection pool factory |
 | `src/index.ts` | `createMysqlInfra()` factory + re-exports |
@@ -86,7 +86,7 @@ Your `package.json` should peer-depend on `@supaproxy/core`:
 import type { DatabaseAdapter } from '@supaproxy/core/ports/database'
 ```
 
-This interface defines exactly 11 repository fields. TypeScript will error if you miss any.
+This interface lists every repository field. TypeScript will error if you miss any.
 
 ### 3. Import the domain interfaces
 
