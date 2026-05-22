@@ -4,7 +4,7 @@ import type {
   MessageWithAuditData, ConversationStatsData, ConversationFilterData,
   ColdTransitionData, ConversationAggregateData,
 } from '@supaproxy/core/domain/conversation'
-import { STATUS_OPEN, STATUS_CLOSED, STATUS_PENDING } from '@supaproxy/core/defaults'
+import { ConversationStatus, StatsStatus } from '@supaproxy/core/defaults'
 import {
   type ConvRow, type ConvWithStatsRow, type MsgRow, type MsgAuditRow,
   type StatsRow, type FilterRow, type ColdRow, type IdRow, type TotalRow,
@@ -44,7 +44,7 @@ export class MysqlConversationRepository implements ConversationRepository {
   async create(data: { id: string; workspaceId: string; consumerType: string; externalThreadId: string; userName?: string; channel?: string; parentId?: string }): Promise<void> {
     await this.pool.execute(
       `INSERT INTO conversations (id, workspace_id, consumer_type, external_thread_id, status, user_name, channel, first_message_at, last_activity_at, parent_conversation_id)
-       VALUES (?, ?, ?, ?, '${STATUS_OPEN}', ?, ?, NOW(), NOW(), ?)`,
+       VALUES (?, ?, ?, ?, '${ConversationStatus.OPEN}', ?, ?, NOW(), NOW(), ?)`,
       [data.id, data.workspaceId, data.consumerType, data.externalThreadId, data.userName || null, data.channel || null, data.parentId || null]
     )
   }
@@ -62,13 +62,13 @@ export class MysqlConversationRepository implements ConversationRepository {
 
   async reopenFromCold(id: string): Promise<void> {
     await this.pool.execute(
-      `UPDATE conversations SET status = '${STATUS_OPEN}', cold_at = NULL, updated_at = NOW() WHERE id = ?`, [id]
+      `UPDATE conversations SET status = '${ConversationStatus.OPEN}', cold_at = NULL, updated_at = NOW() WHERE id = ?`, [id]
     )
   }
 
   async closeConversation(id: string): Promise<void> {
     await this.pool.execute(
-      `UPDATE conversations SET status = '${STATUS_CLOSED}', closed_at = NOW(), updated_at = NOW() WHERE id = ?`, [id]
+      `UPDATE conversations SET status = '${ConversationStatus.CLOSED}', closed_at = NOW(), updated_at = NOW() WHERE id = ?`, [id]
     )
   }
 
@@ -158,7 +158,7 @@ export class MysqlConversationRepository implements ConversationRepository {
 
   async createStats(id: string, conversationId: string): Promise<void> {
     await this.pool.execute(
-      `INSERT INTO conversation_stats (id, conversation_id, stats_status) VALUES (?, ?, '${STATUS_PENDING}')`,
+      `INSERT INTO conversation_stats (id, conversation_id, stats_status) VALUES (?, ?, '${StatsStatus.PENDING}')`,
       [id, conversationId]
     )
   }
@@ -218,7 +218,7 @@ export class MysqlConversationRepository implements ConversationRepository {
     const [rows] = await this.pool.execute<ColdRow[]>(
       `SELECT c.id, c.channel, c.external_thread_id, c.consumer_type
        FROM conversations c JOIN workspaces w ON c.workspace_id = w.id
-       WHERE c.status = '${STATUS_OPEN}' AND c.last_activity_at < NOW() - INTERVAL w.cold_timeout_minutes MINUTE`
+       WHERE c.status = '${ConversationStatus.OPEN}' AND c.last_activity_at < NOW() - INTERVAL w.cold_timeout_minutes MINUTE`
     )
     return rows
   }
@@ -241,15 +241,15 @@ export class MysqlConversationRepository implements ConversationRepository {
   async batchTransitionToClosed(ids: string[]): Promise<void> {
     if (ids.length === 0) return
     await this.pool.execute(
-      `UPDATE conversations SET status = '${STATUS_CLOSED}', closed_at = NOW(), updated_at = NOW() WHERE id IN (${ids.map(() => '?').join(',')})`, ids
+      `UPDATE conversations SET status = '${ConversationStatus.CLOSED}', closed_at = NOW(), updated_at = NOW() WHERE id IN (${ids.map(() => '?').join(',')})`, ids
     )
   }
 
   async getTicketSummary(workspaceId: string): Promise<{ open: number; cold: number; closed_today: number; closed_week: number }> {
     const [rows] = await this.pool.execute<TicketRow[]>(`
-      SELECT SUM(status = '${STATUS_OPEN}') as open_count, SUM(status = 'cold') as cold_count,
-        SUM(status = '${STATUS_CLOSED}' AND DATE(closed_at) = CURDATE()) as closed_today,
-        SUM(status = '${STATUS_CLOSED}' AND closed_at > NOW() - INTERVAL 7 DAY) as closed_week
+      SELECT SUM(status = '${ConversationStatus.OPEN}') as open_count, SUM(status = 'cold') as cold_count,
+        SUM(status = '${ConversationStatus.CLOSED}' AND DATE(closed_at) = CURDATE()) as closed_today,
+        SUM(status = '${ConversationStatus.CLOSED}' AND closed_at > NOW() - INTERVAL 7 DAY) as closed_week
       FROM conversations WHERE workspace_id = ?
     `, [workspaceId])
     return mapTicketRow(rows[0] || {} as TicketRow)
