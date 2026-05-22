@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.0] - 2026-05-22
+
+### Changed
+- Use domain enums (`WorkspaceStatus`, `ConversationStatus`, `StatsStatus`) instead of removed `STATUS_*` constants
+- `createMysqlInfra()` now returns `conversationQueryRepo` (same instance as `conversationRepo`)
+- Peer dependency bumped to `@supaproxy/core >=2.0.0`
+
+### Breaking
+- Requires `@supaproxy/core >=2.0.0`
+
 ## [1.0.0] - 2026-05-20
 
 ### Added
