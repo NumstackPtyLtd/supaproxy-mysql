@@ -21,10 +21,12 @@ interface GuardrailConfig {
 }
 
 export function createMysqlInfra(pool: mysql.Pool): DatabaseAdapter {
+  const conversationRepoInstance = new MysqlConversationRepository(pool)
   return {
     orgRepo: new MysqlOrganisationRepository(pool),
     workspaceRepo: new MysqlWorkspaceRepository(pool),
-    conversationRepo: new MysqlConversationRepository(pool),
+    conversationRepo: conversationRepoInstance,
+    conversationQueryRepo: conversationRepoInstance,
     auditRepo: new MysqlAuditLogRepository(pool),
     modelRepo: new MysqlModelRepository(pool),
     promptTemplateRepo: new MysqlPromptTemplateRepository(pool),

@@ -49,6 +49,7 @@ describe('createMysqlInfra', () => {
       'orgRepo',
       'workspaceRepo',
       'conversationRepo',
+      'conversationQueryRepo',
       'auditRepo',
       'modelRepo',
       'promptTemplateRepo',
