@@ -140,6 +140,13 @@ export class MysqlWorkspaceRepository implements WorkspaceRepository {
     return rows
   }
 
+  async findConnectionById(connectionId: string): Promise<ConnectionData | null> {
+    const [rows] = await this.pool.execute<ConnRow[]>(
+      'SELECT id, workspace_id, name, type, status, config FROM connections WHERE id = ?', [connectionId]
+    )
+    return rows[0] || null
+  }
+
   async findConnectionByName(workspaceId: string, name: string): Promise<ConnectionData | null> {
     const [rows] = await this.pool.execute<ConnRow[]>(
       'SELECT id, name, type, status, config FROM connections WHERE workspace_id = ? AND name = ?', [workspaceId, name]
