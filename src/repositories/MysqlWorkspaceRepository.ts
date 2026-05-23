@@ -106,13 +106,13 @@ export class MysqlWorkspaceRepository implements WorkspaceRepository {
 
     // Count total matching connections
     const countSql = `SELECT COUNT(DISTINCT c.id) as total FROM connections c JOIN workspaces w ON c.workspace_id = w.id LEFT JOIN connection_tools ct_search ON ct_search.connection_id = c.id ${where}`
-    const [countRows] = await this.pool.execute<TotalRow[]>(countSql, params)
+    const [countRows] = await this.pool.query<TotalRow[]>(countSql, params)
     const total = countRows[0]?.total ?? 0
 
     // Fetch paginated connections with tool count
     const connParams: (string | number)[] = [...params, limit, offset]
     const connSql = `SELECT DISTINCT c.id, c.workspace_id, w.name as workspace_name, c.name, c.type, c.status, (SELECT COUNT(*) FROM connection_tools ct2 WHERE ct2.connection_id = c.id) as tool_count FROM connections c JOIN workspaces w ON c.workspace_id = w.id LEFT JOIN connection_tools ct_search ON ct_search.connection_id = c.id ${where} ORDER BY c.name LIMIT ? OFFSET ?`
-    const [connRows] = await this.pool.execute<(mysql.RowDataPacket & OrgConnectionData)[]>(connSql, connParams)
+    const [connRows] = await this.pool.query<(mysql.RowDataPacket & OrgConnectionData)[]>(connSql, connParams)
 
     return { connections: connRows, total }
   }
