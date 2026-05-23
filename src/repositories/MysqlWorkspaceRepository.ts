@@ -3,7 +3,7 @@ import type {
   WorkspaceRepository, WorkspaceData, ConnectionData, ConnectionToolData,
   ConsumerData, KnowledgeSourceData, GuardrailData, PermissionData,
   WorkspaceStatsData, WorkspaceListItemData, ActivityLogData,
-  WorkspaceRoutingSummary,
+  WorkspaceRoutingSummary, OrgConnectionData, OrgToolData, OrgConnectionsResult,
 } from '@supaproxy/core/domain/workspace'
 import { WorkspaceStatus, STATUS_CONNECTED, STATUS_DISCONNECTED } from '@supaproxy/core/defaults'
 import {
@@ -91,6 +91,38 @@ export class MysqlWorkspaceRepository implements WorkspaceRepository {
       'SELECT w.id, w.name, w.status, w.model, w.system_prompt, w.max_tool_rounds, w.cold_timeout_minutes, w.close_timeout_minutes, w.created_by, t.name as team FROM workspaces w LEFT JOIN teams t ON w.team_id = t.id WHERE w.id = ?', [id]
     )
     return rows[0] || null
+  }
+
+  async listOrgConnections(orgId: string, options: { search?: string; limit: number; offset: number }): Promise<OrgConnectionsResult> {
+    const { search, limit, offset } = options
+    const params: (string | number)[] = [orgId]
+
+    let where = 'WHERE w.org_id = ? AND w.status != "archived"'
+    if (search) {
+      where += ' AND (c.name LIKE ? OR w.name LIKE ? OR ct_search.name LIKE ?)'
+      const pattern = `%${search}%`
+      params.push(pattern, pattern, pattern)
+    }
+
+    // Count total matching connections
+    const countSql = `SELECT COUNT(DISTINCT c.id) as total FROM connections c JOIN workspaces w ON c.workspace_id = w.id LEFT JOIN connection_tools ct_search ON ct_search.connection_id = c.id ${where}`
+    const [countRows] = await this.pool.execute<TotalRow[]>(countSql, params)
+    const total = countRows[0]?.total ?? 0
+
+    // Fetch paginated connections with tool count
+    const connParams: (string | number)[] = [...params, limit, offset]
+    const connSql = `SELECT DISTINCT c.id, c.workspace_id, w.name as workspace_name, c.name, c.type, c.status, (SELECT COUNT(*) FROM connection_tools ct2 WHERE ct2.connection_id = c.id) as tool_count FROM connections c JOIN workspaces w ON c.workspace_id = w.id LEFT JOIN connection_tools ct_search ON ct_search.connection_id = c.id ${where} ORDER BY c.name LIMIT ? OFFSET ?`
+    const [connRows] = await this.pool.execute<(mysql.RowDataPacket & OrgConnectionData)[]>(connSql, connParams)
+
+    if (connRows.length === 0) return { connections: connRows, tools: [], total }
+
+    // Fetch tools for the returned connections
+    const connIds = connRows.map(r => r.id)
+    const placeholders = connIds.map(() => '?').join(',')
+    const toolSql = `SELECT ct.id, ct.connection_id, c.name as connection_name, ct.name, ct.description, ct.is_write, c.workspace_id, w.name as workspace_name FROM connection_tools ct JOIN connections c ON ct.connection_id = c.id JOIN workspaces w ON c.workspace_id = w.id WHERE c.id IN (${placeholders})`
+    const [toolRows] = await this.pool.execute<(mysql.RowDataPacket & OrgToolData)[]>(toolSql, connIds)
+
+    return { connections: connRows, tools: toolRows, total }
   }
 
   async findConnections(workspaceId: string): Promise<ConnectionData[]> {
