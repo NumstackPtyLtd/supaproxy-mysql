@@ -114,15 +114,16 @@ export class MysqlWorkspaceRepository implements WorkspaceRepository {
     const connSql = `SELECT DISTINCT c.id, c.workspace_id, w.name as workspace_name, c.name, c.type, c.status, (SELECT COUNT(*) FROM connection_tools ct2 WHERE ct2.connection_id = c.id) as tool_count FROM connections c JOIN workspaces w ON c.workspace_id = w.id LEFT JOIN connection_tools ct_search ON ct_search.connection_id = c.id ${where} ORDER BY c.name LIMIT ? OFFSET ?`
     const [connRows] = await this.pool.execute<(mysql.RowDataPacket & OrgConnectionData)[]>(connSql, connParams)
 
-    if (connRows.length === 0) return { connections: connRows, tools: [], total }
+    return { connections: connRows, total }
+  }
 
-    // Fetch tools for the returned connections
-    const connIds = connRows.map(r => r.id)
-    const placeholders = connIds.map(() => '?').join(',')
-    const toolSql = `SELECT ct.id, ct.connection_id, c.name as connection_name, ct.name, ct.description, ct.is_write, c.workspace_id, w.name as workspace_name FROM connection_tools ct JOIN connections c ON ct.connection_id = c.id JOIN workspaces w ON c.workspace_id = w.id WHERE c.id IN (${placeholders})`
-    const [toolRows] = await this.pool.execute<(mysql.RowDataPacket & OrgToolData)[]>(toolSql, connIds)
-
-    return { connections: connRows, tools: toolRows, total }
+  async findToolsByConnectionId(connectionId: string): Promise<OrgToolData[]> {
+    const [rows] = await this.pool.execute<(mysql.RowDataPacket & OrgToolData)[]>(`
+      SELECT ct.id, ct.connection_id, c.name as connection_name, ct.name, ct.description, ct.is_write, c.workspace_id, w.name as workspace_name
+      FROM connection_tools ct JOIN connections c ON ct.connection_id = c.id JOIN workspaces w ON c.workspace_id = w.id
+      WHERE ct.connection_id = ?
+    `, [connectionId])
+    return rows
   }
 
   async findConnections(workspaceId: string): Promise<ConnectionData[]> {
