@@ -394,6 +394,7 @@ const migrations: Migration[] = [
       for (const [oldId, newId] of renames) { await pool.execute(`UPDATE workspace_guardrails SET guardrail_id = ? WHERE guardrail_id = ?`, [newId, oldId]); await pool.execute(`UPDATE guardrail_events SET plugin_id = ? WHERE plugin_id = ?`, [newId, oldId]); await pool.execute(`UPDATE guardrail_policies SET plugin_id = ? WHERE plugin_id = ?`, [newId, oldId]) }
     },
   },
+  { version: 31, name: 'add knowledge_grounding to workspaces', up: async (pool) => { const [cols] = await pool.execute<ColumnInfoRow[]>("SHOW COLUMNS FROM workspaces LIKE 'knowledge_grounding'"); if (cols.length === 0) { await pool.execute("ALTER TABLE workspaces ADD COLUMN knowledge_grounding VARCHAR(20) NULL AFTER system_prompt"); } } },
 ]
 
 interface SchemaMigrationRow extends mysql.RowDataPacket {

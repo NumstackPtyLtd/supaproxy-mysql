@@ -52,7 +52,7 @@ export class MysqlWorkspaceRepository implements WorkspaceRepository {
     )
   }
 
-  async update(id: string, fields: { name?: string; model?: string; provider_type?: string | null; system_prompt?: string; cold_timeout_minutes?: number | null; close_timeout_minutes?: number | null }): Promise<void> {
+  async update(id: string, fields: { name?: string; model?: string; provider_type?: string | null; system_prompt?: string; cold_timeout_minutes?: number | null; close_timeout_minutes?: number | null; knowledge_grounding?: string | null }): Promise<void> {
     const sets: string[] = []
     const params: (string | number | null)[] = []
     if (fields.name !== undefined) { sets.push('name = ?'); params.push(fields.name) }
@@ -61,6 +61,7 @@ export class MysqlWorkspaceRepository implements WorkspaceRepository {
     if (fields.system_prompt !== undefined) { sets.push('system_prompt = ?'); params.push(fields.system_prompt) }
     if (fields.cold_timeout_minutes !== undefined) { sets.push('cold_timeout_minutes = ?'); params.push(fields.cold_timeout_minutes) }
     if (fields.close_timeout_minutes !== undefined) { sets.push('close_timeout_minutes = ?'); params.push(fields.close_timeout_minutes) }
+    if (fields.knowledge_grounding !== undefined) { sets.push('knowledge_grounding = ?'); params.push(fields.knowledge_grounding) }
     if (sets.length === 0) return
     sets.push('updated_at = NOW()')
     params.push(id)
