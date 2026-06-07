@@ -395,6 +395,7 @@ const migrations: Migration[] = [
     },
   },
   { version: 31, name: 'add knowledge_grounding to workspaces', up: async (pool) => { const [cols] = await pool.execute<ColumnInfoRow[]>("SHOW COLUMNS FROM workspaces LIKE 'knowledge_grounding'"); if (cols.length === 0) { await pool.execute("ALTER TABLE workspaces ADD COLUMN knowledge_grounding VARCHAR(20) NULL AFTER system_prompt"); } } },
+  { version: 32, name: 'create knowledge_gaps table', up: async (pool) => { await pool.execute(`CREATE TABLE IF NOT EXISTS knowledge_gaps (id VARCHAR(64) PRIMARY KEY, workspace_id VARCHAR(64) NOT NULL, conversation_id VARCHAR(64), topic VARCHAR(255) NOT NULL, missing_information TEXT, sources_checked JSON, gap_detail TEXT, user_name VARCHAR(255), status VARCHAR(20) NOT NULL DEFAULT 'open', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX idx_kgaps_workspace (workspace_id), INDEX idx_kgaps_created (workspace_id, created_at), FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE)`) } },
 ]
 
 interface SchemaMigrationRow extends mysql.RowDataPacket {

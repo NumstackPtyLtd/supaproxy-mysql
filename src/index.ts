@@ -13,6 +13,7 @@ import { MysqlGuardrailPolicyRepository } from './repositories/MysqlGuardrailPol
 import { MysqlIntegrationRepository } from './repositories/MysqlIntegrationRepository.js'
 import { MysqlEntryPointRepository } from './repositories/MysqlEntryPointRepository.js'
 import { MysqlKnowledgeChunkRepository } from './repositories/MysqlKnowledgeChunkRepository.js'
+import { MysqlKnowledgeGapRepository } from './repositories/MysqlKnowledgeGapRepository.js'
 
 interface GuardrailConfig {
   cost_cap_monthly_usd?: number
@@ -35,6 +36,7 @@ export function createMysqlInfra(pool: mysql.Pool): DatabaseAdapter {
     integrationRepo: new MysqlIntegrationRepository(pool),
     entryPointRepo: new MysqlEntryPointRepository(pool),
     knowledgeChunkRepo: new MysqlKnowledgeChunkRepository(pool),
+    knowledgeGapRepo: new MysqlKnowledgeGapRepository(pool),
 
     async getMonthlySpend(workspaceId: string): Promise<number> {
       const [rows] = await pool.execute<RowDataPacket[]>(
