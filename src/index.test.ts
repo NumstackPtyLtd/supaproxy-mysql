@@ -58,6 +58,7 @@ describe('createMysqlInfra', () => {
       'integrationRepo',
       'entryPointRepo',
       'knowledgeChunkRepo',
+      'knowledgeGapRepo',
       'getMonthlySpend',
       'getWorkspaceGuardrailConfig',
     ]
